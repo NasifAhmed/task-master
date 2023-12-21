@@ -12,7 +12,6 @@ import {
 } from "firebase/auth";
 import { ReactNode, createContext, useEffect, useState } from "react";
 import app from "../config/firebase.config";
-// import { useAxios } from "../hooks/useAxios";
 
 // Types
 type createUser = (email: string, password: string) => Promise<UserCredential>;
