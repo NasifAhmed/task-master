@@ -30,7 +30,8 @@ export default function Dashboard() {
                 const todoArray: TodoType[] = [];
                 const ongoingArray: TodoType[] = [];
                 const completedArray: TodoType[] = [];
-                res.data.forEach((task) => {
+                const data = res.data.reverse();
+                data.forEach((task) => {
                     if (task.status === "todo") {
                         todoArray.push(task);
                         setTodo(todoArray);
@@ -200,7 +201,7 @@ export default function Dashboard() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            <div className="grid grid-cols-3 h-full">
+            <div className="grid grid-cols-3 min-h-[100vh]">
                 <div className="border p-4 flex flex-col gap-5 m-8 drop-shadow-lg shadow-md rounded-lg">
                     <h2 className="text-center font-bold text-2xl">Todo</h2>
                     <Separator className="my-3" />
