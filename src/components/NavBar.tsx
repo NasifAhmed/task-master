@@ -1,13 +1,15 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { AuthContext } from "@/provider/AuthProvider";
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Logo from "./Logo";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export default function NavBar() {
     const navigate = useNavigate();
     const { user, logOut } = useContext(AuthContext);
+    let location = useLocation();
 
     const links = [
         {
@@ -28,18 +30,24 @@ export default function NavBar() {
     }
 
     return (
-        <nav className="flex">
+        <nav className="flex items-center mb-10">
             <div className="navstart">
                 <Logo />
             </div>
             <div className="navmid flex-grow">
-                <ul className="flex justify-start items-center">
+                <ul className="flex justify-start items-center gap-3">
                     {links.map((link, index) => {
                         return (
                             <li
                                 key={index}
                                 onClick={() => navigate(link.url)}
-                                className="p-5 cursor-pointer"
+                                className={cn(
+                                    "cursor-pointer px-2 py-2 transition-all",
+                                    {
+                                        "bg-primary rounded-md text-white":
+                                            location.pathname === link.url,
+                                    }
+                                )}
                             >
                                 {link.name}
                             </li>
