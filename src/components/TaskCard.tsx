@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { TodoType } from "@/types/todo";
+import { ChevronsDown, Flame, Wind } from "lucide-react";
 import moment from "moment";
 import { useState } from "react";
 import { Badge } from "./ui/badge";
@@ -26,6 +27,9 @@ export default function TaskCard({ taskData }: { taskData: TodoType }) {
                 className={cn(
                     {
                         "scale-90 opacity-60 transition-all ": dragging,
+                        "bg-red-100": taskData.status === "todo",
+                        "bg-yellow-100": taskData.status === "ongoing",
+                        "bg-green-100": taskData.status === "completed",
                     },
                     "p-3"
                 )}
@@ -38,15 +42,18 @@ export default function TaskCard({ taskData }: { taskData: TodoType }) {
                         {moment(taskData.deadline).format("h:mm A, MM-D-YY ")}
                     </h3>
                 </div>
-                <div className="">
+                <div>
                     <Badge
-                        className={cn("uppercase", {
-                            "bg-red-700": taskData.status === "todo",
-                            "bg-yellow-700": taskData.status === "ongoing",
-                            "bg-green-700": taskData.status === "completed",
+                        className={cn("my-1 uppercase text-sm", {
+                            "bg-red-700": taskData.priority === "high",
+                            "bg-yellow-700": taskData.priority === "moderate",
+                            "bg-green-700": taskData.priority === "low",
                         })}
                     >
-                        {taskData.status}
+                        {taskData.priority === "high" && <Flame />}
+                        {taskData.priority === "moderate" && <Wind />}
+                        {taskData.priority === "low" && <ChevronsDown />}
+                        {taskData.priority}
                     </Badge>
                 </div>
                 <hr className="my-1" />

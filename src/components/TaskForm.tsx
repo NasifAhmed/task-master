@@ -6,12 +6,20 @@ import { AuthContext } from "@/provider/AuthProvider";
 import { useContext } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useQueryClient } from "react-query";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "./ui/select";
 import { Textarea } from "./ui/textarea";
 
 type taskData = {
     title: string;
     deadline: string;
     desc: string;
+    priority: "low" | "moderate" | "high";
 };
 
 export default function TaskForm({
@@ -32,6 +40,7 @@ export default function TaskForm({
             status: "todo",
             deadline: data.deadline,
             desc: data.desc,
+            priority: data.priority,
         };
         await axios
             .post("/todo", payload)
@@ -76,6 +85,35 @@ export default function TaskForm({
                         />
                     </div>
                     <div>
+                        <Label>Select Priority :</Label>
+                        <Controller
+                            control={control}
+                            name="priority"
+                            rules={{
+                                required: "Priority is required",
+                            }}
+                            render={({ field }) => (
+                                <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue=""
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Priority" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="low">Low</SelectItem>
+                                        <SelectItem value="moderate">
+                                            Moderate
+                                        </SelectItem>
+                                        <SelectItem value="high">
+                                            High
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
+                    <div>
                         <Label>Deadline</Label>
                         <Controller
                             control={control}
@@ -94,15 +132,13 @@ export default function TaskForm({
                             )}
                         />
                     </div>
+
                     <div>
                         <Label>Description</Label>
                         <Controller
                             control={control}
                             name="desc"
                             defaultValue=""
-                            rules={{
-                                required: "Description is mandatory",
-                            }}
                             render={({ field }) => (
                                 <Textarea
                                     {...field}
