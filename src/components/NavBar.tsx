@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 export default function NavBar() {
     const navigate = useNavigate();
     const { user, logOut } = useContext(AuthContext);
-    let location = useLocation();
+    const location = useLocation();
 
     const links = [
         {
@@ -30,12 +30,12 @@ export default function NavBar() {
     }
 
     return (
-        <nav className="flex items-center mb-10">
-            <div className="navstart">
+        <nav className="flex items-center mb-10 mt-5 mx-5">
+            <div className="navstart mr-10">
                 <Logo />
             </div>
             <div className="navmid flex-grow">
-                <ul className="flex justify-start items-center gap-3">
+                <ul className="hidden md:flex justify-start items-center gap-3">
                     {links.map((link, index) => {
                         return (
                             <li
@@ -58,7 +58,7 @@ export default function NavBar() {
             <div className="navend flex justify-end items-center gap-5">
                 {user && (
                     <div className="flex justify-center items-center gap-3">
-                        <h3>{user?.email}</h3>
+                        <h3 className="hidden md:block">{user?.email}</h3>
                         <Avatar>
                             <AvatarFallback>AB</AvatarFallback>
                             <AvatarImage src={user?.photoURL as string} />
