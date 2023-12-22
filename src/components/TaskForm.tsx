@@ -5,6 +5,7 @@ import { useAxios } from "@/hooks/useAxios";
 import { AuthContext } from "@/provider/AuthProvider";
 import { useContext } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useQueryClient } from "react-query";
 import { Textarea } from "./ui/textarea";
 
 type taskData = {
@@ -13,10 +14,15 @@ type taskData = {
     desc: string;
 };
 
-export default function TaskForm() {
+export default function TaskForm({
+    modalControl,
+}: {
+    modalControl: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
     const { control, handleSubmit } = useForm<taskData>();
     const axios = useAxios();
     const { user } = useContext(AuthContext);
+    const queryClient = useQueryClient();
 
     const submitHandler = async (data: taskData) => {
         console.log(`Trying to log in ${data}`);
@@ -31,6 +37,8 @@ export default function TaskForm() {
             .post("/todo", payload)
             .then((res) => {
                 console.log(res);
+                queryClient.invalidateQueries("tasks");
+                modalControl(false);
             })
             .catch((error) => {
                 console.log(error);

@@ -34,6 +34,11 @@ export default function TaskCard({ taskData }: { taskData: TodoType }) {
                     <h3 className="font-semibold text-lg">{taskData.title}</h3>
                 </div>
                 <div>
+                    <h3 className="text-sm">
+                        {moment(taskData.deadline).format("h:mm A, MM-D-YY ")}
+                    </h3>
+                </div>
+                <div className="">
                     <Badge
                         className={cn("uppercase", {
                             "bg-red-700": taskData.status === "todo",
@@ -43,11 +48,6 @@ export default function TaskCard({ taskData }: { taskData: TodoType }) {
                     >
                         {taskData.status}
                     </Badge>
-                </div>
-                <div>
-                    <h3>
-                        {moment(taskData.deadline).format("h:mm A, MM-D-YY ")}
-                    </h3>
                 </div>
                 <hr className="my-1" />
                 <div>

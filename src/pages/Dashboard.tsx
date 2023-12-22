@@ -13,12 +13,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useAxios } from "@/hooks/useAxios";
 import { TodoType } from "@/types/todo";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "react-query";
 
 export default function Dashboard() {
     const [todo, setTodo] = useState<TodoType[]>();
     const [ongoing, setOngoing] = useState<TodoType[]>();
     const [completed, setCompleted] = useState<TodoType[]>();
+    const [open, setOpen] = useState(false);
     const axios = useAxios();
 
     async function fetchData() {
@@ -46,12 +48,8 @@ export default function Dashboard() {
             });
     }
 
-    useEffect(() => {
-        console.log("Fetching data");
-        return () => {
-            fetchData();
-        };
-    }, []);
+    const queryClient = useQueryClient();
+    const query = useQuery("tasks", fetchData);
 
     function handleDragOver(e: React.DragEvent) {
         e.preventDefault();
@@ -69,7 +67,8 @@ export default function Dashboard() {
             .post("/todo", payload)
             .then((res) => {
                 console.log(res);
-                fetchData();
+                queryClient.invalidateQueries("tasks");
+                return res;
             })
             .catch((error) => {
                 console.log(error);
@@ -181,7 +180,7 @@ export default function Dashboard() {
     }
     return (
         <>
-            <Dialog>
+            <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild className="w-full flex justify-center">
                     <div>
                         <Button>Create a task</Button>
@@ -191,7 +190,7 @@ export default function Dashboard() {
                     <DialogHeader>
                         <DialogTitle>Create a task</DialogTitle>
                     </DialogHeader>
-                    <TaskForm />
+                    <TaskForm modalControl={setOpen} />
                     <DialogFooter>
                         <DialogClose asChild>
                             <Button type="button" variant="secondary">
