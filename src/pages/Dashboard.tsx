@@ -12,8 +12,9 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { useAxios } from "@/hooks/useAxios";
+import { AuthContext } from "@/provider/AuthProvider";
 import { TodoType } from "@/types/todo";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 
 export default function Dashboard() {
@@ -22,10 +23,11 @@ export default function Dashboard() {
     const [completed, setCompleted] = useState<TodoType[]>();
     const [open, setOpen] = useState(false);
     const axios = useAxios();
+    const { user } = useContext(AuthContext);
 
     async function fetchData() {
         await axios
-            .get<TodoType[]>("/todo")
+            .get<TodoType[]>(`/todo?owner=${user?.email}`)
             .then((res) => {
                 const todoArray: TodoType[] = [];
                 const ongoingArray: TodoType[] = [];
@@ -50,7 +52,7 @@ export default function Dashboard() {
     }
 
     const queryClient = useQueryClient();
-    const query = useQuery("tasks", fetchData);
+    useQuery("tasks", fetchData);
 
     function handleDragOver(e: React.DragEvent) {
         e.preventDefault();

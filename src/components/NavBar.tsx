@@ -30,7 +30,7 @@ export default function NavBar() {
     }
 
     return (
-        <nav className="flex items-center mb-10 mt-5 mx-5">
+        <nav className="flex items-center mb-20 mt-5 mx-5">
             <div className="navstart mr-10">
                 <Logo />
             </div>
