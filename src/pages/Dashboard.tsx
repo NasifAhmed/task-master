@@ -10,6 +10,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 import { useAxios } from "@/hooks/useAxios";
 import { TodoType } from "@/types/todo";
 import { useEffect, useState } from "react";
@@ -20,8 +21,8 @@ export default function Dashboard() {
     const [completed, setCompleted] = useState<TodoType[]>();
     const axios = useAxios();
 
-    useEffect(() => {
-        axios
+    async function fetchData() {
+        await axios
             .get<TodoType[]>("/todo")
             .then((res) => {
                 const todoArray: TodoType[] = [];
@@ -43,16 +44,44 @@ export default function Dashboard() {
             .catch((error) => {
                 console.log(error);
             });
+    }
+
+    useEffect(() => {
+        console.log("Fetching data");
+        return () => {
+            fetchData();
+        };
     }, []);
 
     function handleDragOver(e: React.DragEvent) {
         e.preventDefault();
     }
 
+    async function updateDB(
+        task: TodoType,
+        status: "todo" | "ongoing" | "completed"
+    ) {
+        const payload = {
+            ...task,
+            status: status,
+        };
+        await axios
+            .post("/todo", payload)
+            .then((res) => {
+                console.log(res);
+                fetchData();
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    // For handling drops to todo list
     function handleOnDropTodo(e: React.DragEvent) {
         const widgetType = e.dataTransfer.getData("widgetType") as string;
         console.log("widgetType", widgetType);
 
+        // Drop ongoing --> todo
         ongoing?.forEach((task) => {
             if (task._id === widgetType) {
                 if (todo) {
@@ -63,8 +92,11 @@ export default function Dashboard() {
                 setOngoing([
                     ...ongoing.filter((task) => task._id !== widgetType),
                 ]);
+                updateDB(task, "todo");
             }
         });
+
+        // Drop completed --> todo
         completed?.forEach((task) => {
             if (task._id === widgetType) {
                 if (todo) {
@@ -75,13 +107,17 @@ export default function Dashboard() {
                 setCompleted([
                     ...completed.filter((task) => task._id !== widgetType),
                 ]);
+                updateDB(task, "todo");
             }
         });
     }
+
+    // For handling drops to ongoing list
     function handleOnDropOngoing(e: React.DragEvent) {
         const widgetType = e.dataTransfer.getData("widgetType") as string;
         console.log("widgetType", widgetType);
 
+        // Drop todo --> ongoing
         todo?.forEach((task) => {
             if (task._id === widgetType) {
                 if (ongoing) {
@@ -90,8 +126,11 @@ export default function Dashboard() {
                     setOngoing([task]);
                 }
                 setTodo([...todo.filter((task) => task._id !== widgetType)]);
+                updateDB(task, "ongoing");
             }
         });
+
+        // Drop completed --> ongoing
         completed?.forEach((task) => {
             if (task._id === widgetType) {
                 if (ongoing) {
@@ -102,13 +141,17 @@ export default function Dashboard() {
                 setCompleted([
                     ...completed.filter((task) => task._id !== widgetType),
                 ]);
+                updateDB(task, "ongoing");
             }
         });
     }
+
+    // For handling drops to completed list
     function handleOnDropCompleted(e: React.DragEvent) {
         const widgetType = e.dataTransfer.getData("widgetType") as string;
         console.log("widgetType", widgetType);
 
+        // Drop todo --> completed
         todo?.forEach((task) => {
             if (task._id === widgetType) {
                 if (completed) {
@@ -117,8 +160,11 @@ export default function Dashboard() {
                     setCompleted([task]);
                 }
                 setTodo([...todo.filter((task) => task._id !== widgetType)]);
+                updateDB(task, "completed");
             }
         });
+
+        // Drop ongoing --> completed
         ongoing?.forEach((task) => {
             if (task._id === widgetType) {
                 if (completed) {
@@ -129,13 +175,18 @@ export default function Dashboard() {
                 setOngoing([
                     ...ongoing.filter((task) => task._id !== widgetType),
                 ]);
+                updateDB(task, "completed");
             }
         });
     }
     return (
         <>
             <Dialog>
-                <DialogTrigger>Create a task</DialogTrigger>
+                <DialogTrigger asChild className="w-full flex justify-center">
+                    <div>
+                        <Button>Create a task</Button>
+                    </div>
+                </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Create a task</DialogTitle>
@@ -150,14 +201,14 @@ export default function Dashboard() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            <div className="grid grid-cols-4 h-full">
-                <div className="border">Navigation</div>
-                <div className="border p-4 flex flex-col gap-5">
-                    <h2>Todo</h2>
+            <div className="grid grid-cols-3 h-full">
+                <div className="border p-4 flex flex-col gap-5 m-8 drop-shadow-lg shadow-md rounded-lg">
+                    <h2 className="text-center font-bold text-2xl">Todo</h2>
+                    <Separator className="my-3" />
                     <div
                         onDrop={handleOnDropTodo}
                         onDragOver={handleDragOver}
-                        className="h-full"
+                        className="h-full overflow-y-auto flex flex-col gap-4"
                     >
                         {todo &&
                             todo.map((task) => {
@@ -167,12 +218,13 @@ export default function Dashboard() {
                             })}
                     </div>
                 </div>
-                <div className="border p-4 flex flex-col gap-5">
-                    <h2>Ongoing</h2>
+                <div className="border p-4 flex flex-col gap-5 m-8 drop-shadow-lg shadow-md rounded-lg">
+                    <h2 className="text-center font-bold text-2xl">Ongoing</h2>
+                    <Separator className="my-3" />
                     <div
                         onDrop={handleOnDropOngoing}
                         onDragOver={handleDragOver}
-                        className="h-full"
+                        className="h-full overflow-y-auto  flex flex-col gap-4"
                     >
                         {ongoing &&
                             ongoing.map((task) => {
@@ -182,12 +234,15 @@ export default function Dashboard() {
                             })}
                     </div>
                 </div>
-                <div className="border p-4 flex flex-col gap-5">
-                    <h2>Completed</h2>
+                <div className="border p-4 flex flex-col gap-5 m-8 drop-shadow-lg shadow-md rounded-lg">
+                    <h2 className="text-center font-bold text-2xl">
+                        Completed
+                    </h2>
+                    <Separator className="my-3" />
                     <div
                         onDrop={handleOnDropCompleted}
                         onDragOver={handleDragOver}
-                        className="h-full"
+                        className="h-full overflow-y-auto  flex flex-col gap-4"
                     >
                         {completed &&
                             completed.map((task) => {
